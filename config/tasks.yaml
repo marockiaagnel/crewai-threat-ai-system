@@ -1,0 +1,71 @@
+log_ingestion_task:
+  description: >
+    Collect and parse email logs, normalize them into a structured format for analysis.
+  expected_output: >
+    A structured JSON object of parsed logs.
+  agent: log_ingestion_agent
+  input_variables: ["logs"]  # 👈 THIS FIXES IT!
+  async_execution: false
+
+anomaly_detection_task:
+  description: >
+    Analyze normalized logs to identify behavioral anomalies and suspicious activities.
+  expected_output: >
+    A list of detected anomalies with timestamps and affected entities.
+  agent: anomaly_detection_agent
+  input_variables: ["structured_logs"]
+  async_execution: false
+
+ioc_matching_task:
+  description: >
+    Match detected anomalies with known Indicators of Compromise (IOCs) from threat feeds.
+  expected_output: >
+    A report correlating anomalies with threat intel, including matched IOCs.
+  agent: threat_intel_agent
+  input_variables: ["structured_logs"]
+  async_execution: false
+
+alert_scoring_task:
+  description: >
+    Assess each matched threat based on severity, scope, and impact to generate a priority score.
+  expected_output: >
+    A scored alert list sorted by urgency.
+  agent: alert_prioritization_agent
+  input_variables: ["structured_logs"]
+  async_execution: false
+
+automated_response_task:
+  description: >
+    Based on alert scores, trigger automated actions such as isolating endpoints or revoking credentials.
+  expected_output: >
+    A summary of actions taken (or simulated) to mitigate the threat.
+  agent: response_automation_agent
+  input_variables: ["structured_logs"]
+  async_execution: false
+
+human_summary_task:
+  description: >
+    Create a readable summary of the full incident lifecycle and actions taken, for SOC or leadership.
+  expected_output: >
+    A structured human-readable summary.
+  agent: human_collaboration_agent
+  input_variables: ["structured_logs"]
+  async_execution: false
+
+model_learning_task:
+  description: >
+    Suggest improvements to detection and response models based on outcomes, missed detections, or FP/FNs.
+  expected_output: >
+    A list of model update recommendations.
+  agent: learning_agent
+  input_variables: ["structured_logs"]
+  async_execution: false
+
+vector_store_task:
+  description: >
+    Embed parsed logs into a vector database for future semantic search and memory use.
+  expected_output: >
+    Confirmation of how many logs were embedded successfully.
+  agent: log_ingestion_agent
+  input_variables: ["structured_logs"]
+  async_execution: false
