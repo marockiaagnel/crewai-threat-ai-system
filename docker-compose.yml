@@ -1,15 +1,24 @@
 version: '3.8'
+
 services:
+  # =========================
+  # Zookeeper (Kafka dependency)
+  # =========================
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
 
+  # =========================
+  # Kafka
+  # =========================
   kafka:
     image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
     depends_on:
       - zookeeper
     environment:
@@ -20,20 +29,35 @@ services:
     ports:
       - "9092:9092"
 
+  # =========================
+  # Elasticsearch (low-memory mode)
+  # =========================
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    container_name: es_lowmem
     environment:
       - discovery.type=single-node
+      - bootstrap.memory_lock=false
       - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - indices.memory.index_buffer_size=5%
+      - node.store.allow_mmap=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
     ports:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-    mem_limit: 1g
 
+  # =========================
+  # Airflow (basic scheduler + webserver)
+  # =========================
   airflow:
     image: puckel/docker-airflow
+    container_name: airflow
     restart: always
     ports:
       - "8080:8080"
