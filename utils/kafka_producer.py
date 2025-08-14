@@ -1,20 +1,31 @@
-from kafka import KafkaProducer
+import os
 import json
+import time
+from kafka import KafkaProducer
+from kafka.errors import NoBrokersAvailable
 
-producer = KafkaProducer(
-    bootstrap_servers='localhost:9092',
-    value_serializer=lambda v: json.dumps(v).encode('utf-8')
-)
+KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "threat-logs")
 
-sample_log = {
-    "log": "\n".join([
-        "Received: from mail.example.com (203.0.113.45) by secure.domain.com",
-        "Subject: Reset Password",
-        "To: user@example.com",
-        "Content: http://malicious.com/reset"
-    ])
-}
+# Wait until Kafka is available
+for i in range(60):  # 60 seconds max wait
+    try:
+        producer = KafkaProducer(
+            bootstrap_servers=KAFKA_BROKER,
+            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        )
+        print("✅ Kafka is ready!")
+        break
+    except NoBrokersAvailable:
+        print(f"⏳ Waiting for Kafka... ({i+1}/60)")
+        time.sleep(1)
+else:
+    raise RuntimeError("Kafka not available after 60 seconds")
 
-producer.send("log-topic", sample_log)
-producer.flush()
-print("Log sent to Kafka.")
+def send_log_to_kafka(log):
+    try:
+        producer.send(KAFKA_TOPIC, log)
+        producer.flush()
+        print(f"✅ Log sent to Kafka topic '{KAFKA_TOPIC}'")
+    except Exception as e:
+        print(f"❌ Failed to send log to Kafka: {e}")

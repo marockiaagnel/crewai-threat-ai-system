@@ -17,7 +17,8 @@ if __name__ == "__main__":
             "Content: Click this link to reset your password: http://malicious.com/reset"
         ])
     ]
-    send_log_to_kafka("email_logs_topic", {"logs": email_logs})
+    for log in email_logs:
+    	send_log_to_kafka(log)  # log is a string here
 
     print("🤖 Logs being passed to crew:", email_logs[0])
     crew_instance = ThreatAICrew()

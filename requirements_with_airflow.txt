@@ -1,0 +1,30 @@
+# Core CrewAI & LLMs
+crewai
+python-dotenv
+google-generativeai
+
+# Vector DB
+faiss-cpu
+sentence-transformers
+chromadb
+
+# Kafka Integration
+kafka-python
+
+# Elasticsearch Logging
+elasticsearch
+
+# Airflow (pin versions for stability)
+apache-airflow==2.10.4
+apache-airflow-providers-cncf-kubernetes==7.2.0
+apache-airflow-providers-common-sql
+apache-airflow-providers-http
+apache-airflow-providers-postgres
+apache-airflow-providers-ftp
+apache-airflow-providers-sqlite
+
+# YAML for config
+pyyaml
+
+# Optional for advanced logging or dashboards
+loguru

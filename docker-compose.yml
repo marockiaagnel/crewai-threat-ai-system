@@ -33,7 +33,7 @@ services:
   # Elasticsearch (low-memory mode)
   # =========================
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
     container_name: es_lowmem
     environment:
       - discovery.type=single-node
@@ -51,7 +51,12 @@ services:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+  
   # =========================
   # Airflow (basic scheduler + webserver)
   # =========================
